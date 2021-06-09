@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  guac:
+    image: guacamole/guacamole
+    networks:
+      - default
+      - main_default
+    environment:
+      GUACD_HOSTNAME: guacd
+      POSTGRES_DATABASE: postgres
+      POSTGRES_HOSTNAME: guac-db
+      POSTGRES_PASSWORD: toor
+      POSTGRES_USER: postgres
+    depends_on:
+      - guac-db
+      - guacd
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.guac.rule=Host(`example.test`)"
+        - "traefik.http.routers.guac.tls.certresolver=myresolver"
+        - "traefik.http.services.guac.loadbalancer.server.port=8080"
+        - "traefik.http.routers.guac.middlewares=guac"
+        - "traefik.http.middlewares.guac.addprefix.prefix=/guacamole"
+  guacd:
+    image: guacamole/guacd:latest
+  guac-db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: toor
+    volumes:
+      - ./guac/db:/var/lib/postgresql/data
+      - ./guac/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  main_default:
+    external: true
+    name: main_default
