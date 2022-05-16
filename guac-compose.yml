@@ -8,11 +8,11 @@ services:
     environment:
       GUACD_HOSTNAME: guacd
       POSTGRES_DATABASE: postgres
-      POSTGRES_HOSTNAME: guac-db
+      POSTGRES_HOSTNAME: postgres
       POSTGRES_PASSWORD: toor
       POSTGRES_USER: postgres
     depends_on:
-      - guac-db
+      - postgres
       - guacd
     deploy:
       labels:
@@ -24,17 +24,13 @@ services:
         - "traefik.http.middlewares.guac.addprefix.prefix=/guacamole"
   guacd:
     image: guacamole/guacd:latest
-  guac-db:
+  postgres:
     image: postgres
     environment:
       POSTGRES_PASSWORD: toor
     volumes:
       - ./guac/db:/var/lib/postgresql/data
       - ./guac/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
 
 networks:
   main_default:
