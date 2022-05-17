@@ -28,7 +28,7 @@ services:
     image: postgres
     environment:
       POSTGRES_PASSWORD: toor
-      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_HOST_AUTH_METHOD: password
     volumes:
       - ./guac/postgres:/var/lib/postgresql/data
       - ./guac/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
